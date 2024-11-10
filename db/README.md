@@ -22,7 +22,7 @@ This will initialise a dockerized instance of the PostgreSQL database with TPC-H
     $ docker compose up
     ```
 
-4.  When the containers are up, initialise the database by running the initialisation batch script. This should take around 3-4 minutes.
+4.  When the containers are up, initialise the database by running the initialisation batch script. This should take around 5-6 minutes.
 
     ```
     $ ./init_database.bat
@@ -47,5 +47,5 @@ You can view that the database has been correctly generated and also query the d
         - Change Username to `admin`
         - Set Password to `admin`
 1. Click on "Save".
-1. You can now interact with the Database, check `TPC-H -> tpch1g -> Tables`. You can use the query editor by right clicking and using the Query Tool.
+1. You can now interact with the Database, check `TPC-H -> Databases -> tpch -> Schemas -> Public -> Tables`. You can use the query editor by right clicking and using the Query Tool.
 1. You should be able to access pgAdmin and the PostgreSQL database should be preserved between sessions.
