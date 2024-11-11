@@ -2,10 +2,11 @@ import psycopg2
 
 def connect_to_db():
     conn = psycopg2.connect(
-        host="localhost",
-        database="tpch_db",
-        user="postgres",
-        password="password" # Change this to your password
+        host="localhost",  
+        database="tpch",   
+        user="admin",
+        password="admin",  
+        port=5432          
     )
     return conn
 
@@ -18,6 +19,8 @@ def fetch_qep(query):
     conn.close()
     return qep
 
+
+# this function modifies the query execution plan based on the modifiers provided
 def modify_qep(query, modifiers):
     print("These are the modifiers:")
     for modifier in modifiers:
