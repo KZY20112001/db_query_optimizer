@@ -18,7 +18,7 @@ class Visualizer():
 
         self.node_id = 0
         self.imagemap = {}
-        self.explainmap = {}
+        # self.explainmap = {}
 
         # populate graph
         self.add_nodes_and_edges(graph, plan, 0)
@@ -48,7 +48,7 @@ class Visualizer():
             # uses the saved info for each networkX node and passes it to pyvis.Network node
             # the multipartite layout is used here to arrange the nodes
             img = f"img/{self.imagemap[node[0]]}"
-            net.add_node(node[0], label=node[1], explanation=self.explainmap[node[0]], x = pos[node[0]][0] * 1500, y = pos[node[0]][1] * 1500, shape="circularImage", image=img, borderWidth = 1.5, borderWidthSelected = 2, color=color, size=25)
+            net.add_node(node[0], label=node[1], x = pos[node[0]][0] * 1500, y = pos[node[0]][1] * 1500, shape="circularImage", image=img, borderWidth = 1.5, borderWidthSelected = 2, color=color, size=25)
         
         # add edges connecting the nodes
         for edge in graph.edges:
@@ -83,7 +83,7 @@ class Visualizer():
         # extra info from the plan itself 
         label += f"\n{plan['Startup Cost']}..{plan['Total Cost']}\n{plan['Plan Rows']} {'row' if plan['Plan Rows'] == 1 else 'rows'}"
         self.imagemap[self.node_id] = img
-        self.explainmap[self.node_id] = plan["Explanation"]
+        # self.explainmap[self.node_id] = plan["Explanation"]
 
         graph.add_node(self.node_id, subset=subset, label=label)
         if parent:
@@ -263,7 +263,7 @@ class App():
         self.query_input.grid(row=1,column=0,columnspan=2,pady=5,sticky="nsew")
 
         # explain button
-        generate_btn = ttk.Button(root, text="Explain", command=self.generate_btn_command)
+        generate_btn = ttk.Button(root, text="Generate", command=self.generate_btn_command)
         generate_btn.grid(row=2, column=0, columnspan=2, pady=5, padx=10)
 
         # disabled to prevent editing
@@ -289,10 +289,8 @@ class App():
         self.clear_status()
         self.query_input.delete(1.0,"end")
         
-        # let the connection know about it
         db_connection.disconnect_from_db()
 
-        # move back to the login frame regardless of how CONN.disconnect went
         set_window_size(self.login_frame, LOGIN_SIZE)
         self.login_frame.tkraise()
     
@@ -326,4 +324,4 @@ class App():
             self.add_status(status=query_res)
         else:
             self.add_status("Explanations generated successfully! Visualizing now.")
-            VIZ.new_viz(plan=query_res)
+            VIZ.new_viz(plan=query_res[0][0][0]['Plan'])
