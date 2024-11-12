@@ -377,20 +377,20 @@ class App():
         # the 2nd row (explain input) will expand/shrink to fit into the window
         root.grid_rowconfigure(1, weight=1)
 
-        header_label = ttk.Label(root, justify="left", text="Enter one query at a time and click 'Explain' to generate an explanation. This will launch an interactable graph in your browser", wraplength=450)
+        header_label = ttk.Label(root, justify="left", text="Enter one query at a time and click 'Generate' to generate a visualization. This will launch an interactable graph in your browser", wraplength=450)
         disconnect_btn = ttk.Button(root, text="Disconnect", command=self.disconnect_btn_command)
 
         # alignment for label and disconnect button
         header_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
         disconnect_btn.grid(row=0, column=1, padx=10, pady=5, sticky="e")
 
-        # explain_input assigned to the flexible row
-        self.explain_input = Text(root, height=25, highlightthickness=1, highlightbackground = "white", highlightcolor= "white")
-        self.explain_input.grid(row=1,column=0,columnspan=2,pady=5,sticky="nsew")
+        # query_input assigned to the flexible row
+        self.query_input = Text(root, height=25, highlightthickness=1, highlightbackground = "white", highlightcolor= "white")
+        self.query_input.grid(row=1,column=0,columnspan=2,pady=5,sticky="nsew")
 
         # explain button
-        explain_btn = ttk.Button(root, text="Explain", command=self.disconnect_btn_command)
-        explain_btn.grid(row=2, column=0, columnspan=2, pady=5, padx=10)
+        generate_btn = ttk.Button(root, text="Explain", command=self.disconnect_btn_command)
+        generate_btn.grid(row=2, column=0, columnspan=2, pady=5, padx=10)
 
         # disabled to prevent editing
         self.explain_status = Text(root, height=5, state="disabled")
@@ -413,7 +413,7 @@ class App():
     def disconnect_btn_command(self) -> None:
         # since tkinter Frames aren't created from scratch everytime, they need to be returned to the initial state
         self.clear_status()
-        self.explain_input.delete(1.0,"end")
+        self.query_input.delete(1.0,"end")
         
         # let the connection know about it
         db_connection.disconnect_from_db()
@@ -427,7 +427,7 @@ class App():
         self.clear_status()
 
         # # we pass add_status to this function so it can use it internally to update the status as it goes on
-        # explain_res = explain(query=self.explain_input.get("1.0",'end-1c'), log_cb=self.add_status, force_analysis=True)
+        # explain_res = explain(query=self.query_input.get("1.0",'end-1c'), log_cb=self.add_status, force_analysis=True)
 
         # CONN.explain returns a string if a fatal error is encountered
         # otherwise it just gives us the plan which is a dictionary
@@ -436,3 +436,19 @@ class App():
         # else:
         #     self.add_status("Explanations generated successfully! Visualizing now.")
         #     VIZ.new_viz(plan=explain_res)
+
+    # handle explain
+    def generate_btn_command(self) -> None:
+        # clear any existing status info
+        self.clear_status()
+
+        # we pass add_status to this function so it can use it internally to update the status as it goes on
+        explain_res = db_connection.fetch_qep(query=self.query_input.get("1.0",'end-1c'))
+
+        # CONN.explain returns a string if a fatal error is encountered
+        # otherwise it just gives us the plan which is a dictionary
+        if type(explain_res) == str:
+            self.add_status(status=explain_res)
+        else:
+            self.add_status("Explanations generated successfully! Visualizing now.")
+            VIZ.new_viz(plan=explain_res)
