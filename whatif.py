@@ -33,7 +33,9 @@ class DBConnection():
 
 
     def fetch_qep(self, query:str):
-
+        if not self.isConnected():
+            return 
+        
         cur = self.connection.cursor()
         cur.execute(f"EXPLAIN (ANALYZE, FORMAT JSON) {query}")
         qep = cur.fetchall()
@@ -44,6 +46,8 @@ class DBConnection():
 
     # this function modifies the query execution plan based on the modifiers provided
     def modify_qep(self, query: str, modifiers: List[str]):
+        if not self.isConnected():
+            return 
         print("These are the modifiers:")
         for modifier in modifiers:
             print(modifier)
