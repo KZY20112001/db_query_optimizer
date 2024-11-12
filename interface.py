@@ -1,7 +1,7 @@
 from tkinter import ttk, Tk, Text
 from pyvis.network import Network
 from typing import List
-from explain import Connection
+from whatif import connect_to_db
 import networkx as nx
 import platform
 import os
