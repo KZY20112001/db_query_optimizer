@@ -1,12 +1,12 @@
 import psycopg2
 
-def connect_to_db():
+def connect_to_db(dbname:str = "tpch", user:str = "admin", password:str = "admin", host:str ="localhost", port:str = "5432"):
     conn = psycopg2.connect(
-        host="localhost",  
-        database="tpch",   
-        user="admin",
-        password="admin",  
-        port=5432          
+        database=dbname,   
+        user=user,
+        password=password,  
+        host=host,  
+        port=port          
     )
     return conn
 
