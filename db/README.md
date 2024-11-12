@@ -13,7 +13,7 @@ This will initialise a dockerized instance of the PostgreSQL database with TPC-H
 2.  Run the cleaning script to generate the `.csv` files.
 
     ```
-    $ python preprocessing.py
+    $ python read_tbls.py
     ```
 
 3.  Start the PostgreSQL database up by running the docker image.

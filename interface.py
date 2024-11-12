@@ -7,7 +7,7 @@ from typing import List
 from tkinter import ttk, Tk, Text
 from pyvis.network import Network
 
-from whatif import DBConnection
+from preprocessing import DBConnection
 from constants import ImageMapper, div, default_text, css, js
 
 # responsible for visualing a QEP that has been explained
