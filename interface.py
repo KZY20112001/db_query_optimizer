@@ -1,11 +1,13 @@
-from tkinter import ttk, Tk, Text
-from pyvis.network import Network
-from typing import List
-from whatif import connect_to_db
-import networkx as nx
 import platform
 import os
+import networkx as nx
 import webbrowser
+
+from typing import List
+from tkinter import ttk, Tk, Text
+from pyvis.network import Network
+
+from whatif import DBConnection
 
 # text shown in the top right to guide the user
 default_text = "Click a node (operator) to get all the relevant info! Extra comments are provided for mismatching costs."
@@ -276,7 +278,7 @@ def dark_title_bar(window: Tk, refresh: bool) -> None:
 LOGIN_SIZE = (400, 375)
 APP_SIZE = (600, 500)
 VIZ = Visualizer()
-
+db_connection = DBConnection()
 # responsible for making the login frame
 class Login:
     def __init__(self, root:ttk.Frame, app_frame:ttk.Frame) -> None:
@@ -350,15 +352,15 @@ class Login:
         print(f"Password: {self.pw_input.get()}")
 
         # open connection
-        connect_res = connect_to_db(dbname=self.db_input.get(), user=self.user_input.get(), password=self.pw_input.get(), host=self.host_input.get(), port=self.port_input.get())
+        connect_res = db_connection.connect_to_db(dbname=self.db_input.get(), user=self.user_input.get(), password=self.pw_input.get(), host=self.host_input.get(), port=self.port_input.get())
 
         # show result
-        print(connect_res)
         # an empty result means no error, move to the app frame
-        if connect_res:
+        if connect_res == "":
+            self.set_error("Connected successfully") 
             set_window_size(self.app_frame, APP_SIZE)
             self.app_frame.tkraise()
-        
+
         else:  
             self.set_error(connect_res) 
 
@@ -375,20 +377,20 @@ class App():
         # the 2nd row (explain input) will expand/shrink to fit into the window
         root.grid_rowconfigure(1, weight=1)
 
-        header_label = ttk.Label(root, justify="left", text="Enter one query at a time and click 'Explain' to generate an explanation. This will launch an interactable graph in your browser", wraplength=450)
+        header_label = ttk.Label(root, justify="left", text="Enter one query at a time and click 'Generate' to generate a visualization. This will launch an interactable graph in your browser", wraplength=450)
         disconnect_btn = ttk.Button(root, text="Disconnect", command=self.disconnect_btn_command)
 
         # alignment for label and disconnect button
         header_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
         disconnect_btn.grid(row=0, column=1, padx=10, pady=5, sticky="e")
 
-        # explain_input assigned to the flexible row
-        self.explain_input = Text(root, height=25, highlightthickness=1, highlightbackground = "white", highlightcolor= "white")
-        self.explain_input.grid(row=1,column=0,columnspan=2,pady=5,sticky="nsew")
+        # query_input assigned to the flexible row
+        self.query_input = Text(root, height=25, highlightthickness=1, highlightbackground = "white", highlightcolor= "white")
+        self.query_input.grid(row=1,column=0,columnspan=2,pady=5,sticky="nsew")
 
         # explain button
-        explain_btn = ttk.Button(root, text="Explain", command=self.disconnect_btn_command)
-        explain_btn.grid(row=2, column=0, columnspan=2, pady=5, padx=10)
+        generate_btn = ttk.Button(root, text="Explain", command=self.disconnect_btn_command)
+        generate_btn.grid(row=2, column=0, columnspan=2, pady=5, padx=10)
 
         # disabled to prevent editing
         self.explain_status = Text(root, height=5, state="disabled")
@@ -411,10 +413,10 @@ class App():
     def disconnect_btn_command(self) -> None:
         # since tkinter Frames aren't created from scratch everytime, they need to be returned to the initial state
         self.clear_status()
-        self.explain_input.delete(1.0,"end")
+        self.query_input.delete(1.0,"end")
         
         # let the connection know about it
-        # CONN.disconnect()
+        db_connection.disconnect_from_db()
 
         # move back to the login frame regardless of how CONN.disconnect went
         set_window_size(self.login_frame, LOGIN_SIZE)
@@ -425,7 +427,7 @@ class App():
         self.clear_status()
 
         # # we pass add_status to this function so it can use it internally to update the status as it goes on
-        # explain_res = explain(query=self.explain_input.get("1.0",'end-1c'), log_cb=self.add_status, force_analysis=True)
+        # explain_res = explain(query=self.query_input.get("1.0",'end-1c'), log_cb=self.add_status, force_analysis=True)
 
         # CONN.explain returns a string if a fatal error is encountered
         # otherwise it just gives us the plan which is a dictionary
@@ -434,3 +436,19 @@ class App():
         # else:
         #     self.add_status("Explanations generated successfully! Visualizing now.")
         #     VIZ.new_viz(plan=explain_res)
+
+    # handle explain
+    def generate_btn_command(self) -> None:
+        # clear any existing status info
+        self.clear_status()
+
+        # we pass add_status to this function so it can use it internally to update the status as it goes on
+        explain_res = db_connection.fetch_qep(query=self.query_input.get("1.0",'end-1c'))
+
+        # CONN.explain returns a string if a fatal error is encountered
+        # otherwise it just gives us the plan which is a dictionary
+        if type(explain_res) == str:
+            self.add_status(status=explain_res)
+        else:
+            self.add_status("Explanations generated successfully! Visualizing now.")
+            VIZ.new_viz(plan=explain_res)
