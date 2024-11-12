@@ -44,7 +44,7 @@ You can view that the database has been correctly generated and also query the d
     - Create “TPC-H" as server name under General -> Name
     - Under Connection:
         - Change address to `pg_container`
-        - Change Username to `admin`
+        - Change Username to `postgres`
         - Set Password to `admin`
 1. Click on "Save".
 1. You can now interact with the Database, check `TPC-H -> Databases -> tpch -> Schemas -> Public -> Tables`. You can use the query editor by right clicking and using the Query Tool.
