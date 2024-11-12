@@ -353,12 +353,15 @@ class Login:
         connect_res = connect_to_db(dbname=self.db_input.get(), user=self.user_input.get(), password=self.pw_input.get(), host=self.host_input.get(), port=self.port_input.get())
 
         # show result
-        self.set_error(connect_res)
-
+        print(connect_res)
         # an empty result means no error, move to the app frame
-        if len(connect_res) == 0:
+        if connect_res:
             set_window_size(self.app_frame, APP_SIZE)
             self.app_frame.tkraise()
+        
+        else:  
+            self.set_error(connect_res) 
+
 
 # responsible for creating the app frame            
 class App():
@@ -384,7 +387,7 @@ class App():
         self.explain_input.grid(row=1,column=0,columnspan=2,pady=5,sticky="nsew")
 
         # explain button
-        explain_btn = ttk.Button(root, text="Explain", command=self.explain_btn_command)
+        explain_btn = ttk.Button(root, text="Explain", command=self.disconnect_btn_command)
         explain_btn.grid(row=2, column=0, columnspan=2, pady=5, padx=10)
 
         # disabled to prevent editing
