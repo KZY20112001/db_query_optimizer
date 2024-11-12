@@ -13,19 +13,19 @@ This will initialise a dockerized instance of the PostgreSQL database with TPC-H
 2.  Run the cleaning script to generate the `.csv` files.
 
     ```
-    $ python read_tbls.py
+    python read_tbls.py
     ```
 
 3.  Start the PostgreSQL database up by running the docker image.
 
     ```
-    $ docker compose up
+    docker compose up
     ```
 
 4.  When the containers are up, initialise the database by running the initialisation batch script. This should take around 5-6 minutes.
 
     ```
-    $ ./init_database.bat
+    init_database.bat
     ```
 
 -   If you delete the containers, you will have to rerun the initial setup steps again.

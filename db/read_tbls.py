@@ -1,16 +1,26 @@
+import os
+
 def tbl_to_csv(filename):
-    csv = open("".join(["./data/", filename, ".csv"]), "w+")
+    tbl_path = "".join(["./tbls/", filename, ".tbl"])
 
-    tbl = open("".join(["./tbls/", filename, ".tbl"]), "r")
+    if not os.path.exists(tbl_path):
+        print(f"The file '{filename}.tbl' does not exist.")
+        return
+    else: 
+        tbl = open(tbl_path, "r")
 
-    lines = tbl.readlines()
-    for line in lines:
-        length = len(line)
-        # Remove last delimeter, but keep newline character
-        line = line[: length - 2] + line[length - 1 :]
-        csv.write(line)
-    tbl.close()
-    csv.close()
+    csv_path = os.path.join("./data/", f"{filename}.csv")
+
+    os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+
+    with open(csv_path, "w+") as csv:
+        lines = tbl.readlines()
+        for line in lines:
+            length = len(line)
+            line = line[: length - 2] + line[length - 1 :]
+            csv.write(line)
+        tbl.close()
+        csv.close()
 
 def main():
     filenames = [

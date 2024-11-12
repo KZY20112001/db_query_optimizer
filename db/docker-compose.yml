@@ -5,7 +5,7 @@ services:
         restart: always
         shm_size: 1gb
         environment:
-            POSTGRES_USER: admin
+            POSTGRES_USER: postgres
             POSTGRES_PASSWORD: admin
             POSTGRES_DB: tpch
 
