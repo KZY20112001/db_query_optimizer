@@ -178,7 +178,7 @@ class Login:
         user_label.grid(row=2,column=0)
 
         self.user_input=ttk.Entry(root, justify="center")
-        self.user_input.insert("end", "admin")
+        self.user_input.insert("end", "postgres")
         self.user_input.grid(row=2,column=1,pady=5,padx=10)
 
         # DB server password input

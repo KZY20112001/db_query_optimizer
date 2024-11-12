@@ -8,11 +8,11 @@ echo "Copied relevant files"
 
 :: Run init scripts
 echo "Running Data Definition Language script..."
-docker exec -u root pg_container psql tpch postgres -f DDL.sql
+docker exec pg_container psql tpch -U postgres -f DDL.sql
 echo "Added schema"
 
 echo "Running Data Manipulation Language script..."
-docker exec -u root pg_container psql tpch postgres -f DML.sql
+docker exec pg_container psql tpch -U postgres -f DML.sql
 echo "Added tables"
 
 

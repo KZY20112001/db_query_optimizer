@@ -11,7 +11,7 @@ class DBConnection():
     def isConnected(self) -> bool: 
         return self.connection is not None and not self.connection.closed
     
-    def connect_to_db(self, dbname:str = "tpch", user:str = "admin", password:str = "admin", host:str ="localhost", port:str = "5432") -> str:
+    def connect_to_db(self, dbname:str = "tpch", user:str = "postgres", password:str = "admin", host:str ="localhost", port:str = "5432") -> str:
         self.disconnect_from_db()
         try: 
             conn = psycopg2.connect(
