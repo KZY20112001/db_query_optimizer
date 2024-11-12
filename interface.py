@@ -1,11 +1,13 @@
-from tkinter import ttk, Tk, Text
-from pyvis.network import Network
-from typing import List
-from whatif import connect_to_db
-import networkx as nx
 import platform
 import os
+import networkx as nx
 import webbrowser
+
+from typing import List
+from tkinter import ttk, Tk, Text
+from pyvis.network import Network
+
+from whatif import DBConnection
 
 # text shown in the top right to guide the user
 default_text = "Click a node (operator) to get all the relevant info! Extra comments are provided for mismatching costs."
@@ -276,7 +278,7 @@ def dark_title_bar(window: Tk, refresh: bool) -> None:
 LOGIN_SIZE = (400, 375)
 APP_SIZE = (600, 500)
 VIZ = Visualizer()
-
+db_connection = DBConnection()
 # responsible for making the login frame
 class Login:
     def __init__(self, root:ttk.Frame, app_frame:ttk.Frame) -> None:
@@ -350,15 +352,15 @@ class Login:
         print(f"Password: {self.pw_input.get()}")
 
         # open connection
-        connect_res = connect_to_db(dbname=self.db_input.get(), user=self.user_input.get(), password=self.pw_input.get(), host=self.host_input.get(), port=self.port_input.get())
+        connect_res = db_connection.connect_to_db(dbname=self.db_input.get(), user=self.user_input.get(), password=self.pw_input.get(), host=self.host_input.get(), port=self.port_input.get())
 
         # show result
-        print(connect_res)
         # an empty result means no error, move to the app frame
-        if connect_res:
+        if connect_res == "":
+            self.set_error("Connected successfully") 
             set_window_size(self.app_frame, APP_SIZE)
             self.app_frame.tkraise()
-        
+
         else:  
             self.set_error(connect_res) 
 
@@ -414,7 +416,7 @@ class App():
         self.explain_input.delete(1.0,"end")
         
         # let the connection know about it
-        # CONN.disconnect()
+        db_connection.disconnect_from_db()
 
         # move back to the login frame regardless of how CONN.disconnect went
         set_window_size(self.login_frame, LOGIN_SIZE)
