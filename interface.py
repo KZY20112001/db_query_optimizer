@@ -276,7 +276,6 @@ def dark_title_bar(window: Tk, refresh: bool) -> None:
 LOGIN_SIZE = (400, 375)
 APP_SIZE = (600, 500)
 VIZ = Visualizer()
-CONN = Connection()
 
 # responsible for making the login frame
 class Login:
@@ -295,7 +294,7 @@ class Login:
         db_label.grid(row=1,column=0)
 
         self.db_input=ttk.Entry(root, justify="center")
-        self.db_input.insert("end", "TPC-H")
+        self.db_input.insert("end", "tpch")
         self.db_input.grid(row=1,column=1,pady=5,padx=10)
 
         # DB server username input
@@ -303,7 +302,7 @@ class Login:
         user_label.grid(row=2,column=0)
 
         self.user_input=ttk.Entry(root, justify="center")
-        self.user_input.insert("end", "postgres")
+        self.user_input.insert("end", "admin")
         self.user_input.grid(row=2,column=1,pady=5,padx=10)
 
         # DB server password input
@@ -348,10 +347,10 @@ class Login:
 
     def connect_btn_command(self) -> None:
         # for user to cross-check
-        print(f"Pass: {self.pw_input.get()}")
+        print(f"Password: {self.pw_input.get()}")
 
         # open connection
-        connect_res = CONN.connect(dbname=self.db_input.get(), user=self.user_input.get(), password=self.pw_input.get(), host=self.host_input.get(), port=self.port_input.get())
+        connect_res = connect_to_db(dbname=self.db_input.get(), user=self.user_input.get(), password=self.pw_input.get(), host=self.host_input.get(), port=self.port_input.get())
 
         # show result
         self.set_error(connect_res)
@@ -412,24 +411,23 @@ class App():
         self.explain_input.delete(1.0,"end")
         
         # let the connection know about it
-        CONN.disconnect()
+        # CONN.disconnect()
 
         # move back to the login frame regardless of how CONN.disconnect went
         set_window_size(self.login_frame, LOGIN_SIZE)
         self.login_frame.tkraise()
     
-    # handle explain
-    def explain_btn_command(self) -> None:
+
         # clear any existing status info
         self.clear_status()
 
-        # we pass add_status to this function so it can use it internally to update the status as it goes on
-        explain_res = CONN.explain(query=self.explain_input.get("1.0",'end-1c'), log_cb=self.add_status, force_analysis=True)
+        # # we pass add_status to this function so it can use it internally to update the status as it goes on
+        # explain_res = explain(query=self.explain_input.get("1.0",'end-1c'), log_cb=self.add_status, force_analysis=True)
 
         # CONN.explain returns a string if a fatal error is encountered
         # otherwise it just gives us the plan which is a dictionary
-        if type(explain_res) == str:
-            self.add_status(status=explain_res)
-        else:
-            self.add_status("Explanations generated successfully! Visualizing now.")
-            VIZ.new_viz(plan=explain_res)
+        # if type(explain_res) == str:
+        #     self.add_status(status=explain_res)
+        # else:
+        #     self.add_status("Explanations generated successfully! Visualizing now.")
+        #     VIZ.new_viz(plan=explain_res)
