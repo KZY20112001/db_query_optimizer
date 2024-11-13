@@ -1,7 +1,5 @@
 from typing import List
-
 import psycopg2
-
 
 # class responsible for handling connecting to db server and handling the queries
 class DBConnection(): 
@@ -37,7 +35,7 @@ class DBConnection():
             return 
         
         cur = self.connection.cursor()
-        cur.execute(f"EXPLAIN (ANALYZE, FORMAT JSON) {query}")
+        cur.execute(f"EXPLAIN (FORMAT JSON) {query}")
         qep = cur.fetchall()
         cur.close()
 
@@ -45,18 +43,17 @@ class DBConnection():
 
 
     # this function modifies the query execution plan based on the modifiers provided
-    def modify_qep(self, query: str, modifiers: List[str]):
+    def modify_qep(self, query: str, modifiers: dict[str]):
         if not self.isConnected():
             return 
-        print("These are the modifiers:")
-        for modifier in modifiers:
-            print(modifier)
         cur = self.connection.cursor()
         # Apply each modifier (e.g., set enable_hashjoin, enable_mergejoin)
-        for modifier in modifiers:
-            cur.execute(f"SET {modifier};")
+        for modifier, value in modifiers.items():
+            if not value:
+                cur.execute(f"SET {modifier} = off;")
+                print(f"SET {modifier} = off")
         # Run the EXPLAIN with the modified settings
-        cur.execute(f"EXPLAIN (ANALYZE, FORMAT JSON) {query}")
+        cur.execute(f"EXPLAIN (FORMAT JSON) {query}")
         qep = cur.fetchall()
         # Reset the executed modifiers
         cur.execute("RESET ALL;")

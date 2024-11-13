@@ -11,7 +11,7 @@ logging.basicConfig(filename='output.log', level=logging.INFO, format='%(asctime
 # Main tkinter window
 root = Tk()
 root.resizable(width=False, height=False)
-root.title("QEP Explainer")
+root.title("What-If Analyzer")
 
 
 root.grid_rowconfigure(0, weight=1)

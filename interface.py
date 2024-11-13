@@ -2,6 +2,7 @@ import platform
 import os
 import networkx as nx
 import webbrowser
+import whatif
 
 from typing import List
 from tkinter import ttk, Tk, Text
@@ -316,7 +317,12 @@ class App():
 
         # we pass add_status to this function so it can use it internally to update the status as it goes on
         query_res = db_connection.fetch_qep(query=self.query_input.get("1.0",'end-1c'))
-        print("Generated result: ", query_res)
+        aqp_res = db_connection.modify_qep(query=self.query_input.get("1.0",'end-1c'), modifiers=whatif.query_settings)
+        print("Generated result QEP: ", query_res)
+        print("Generated result AQP: ", aqp_res)
+        whatif.compare_qp(query_res,aqp_res)
+
+        #print("Generated result: ", query_res)
         
         
         # TO BE UPDATED FOR THE WHAT IF PROJECT 
