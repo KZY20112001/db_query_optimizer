@@ -1,38 +1,3 @@
-
-# text shown in the top right to guide the user
-default_text = "Click a node (operator) to get all the relevant info! Extra comments are provided for mismatching costs."
-
-# css for the info box
-css = """            #info-box {
-                position: absolute;
-                top: 20px;
-                right: 20px;
-                background-color: white;
-                border: 1px solid black;
-                padding: 10px;
-            }
-"""
-
-# html to add our info box
-div = f'            <div id="info-box">{default_text}</div>'
-
-# js to handle click events for updating the info box
-js = f"""                  function updateInfoBox(content) {{
-                    var infoBox = document.getElementById('info-box');
-                    infoBox.innerHTML = content.replace(/\\n/g, "<br>");
-                  }}
-
-                  network.on('click', function(properties) {{
-                    if(properties.nodes.length > 0) {{
-                        var nodeId = properties.nodes[0];
-                        var clickedNode = nodes.get(nodeId);
-                        updateInfoBox(clickedNode.explanation);
-                    }} else {{
-                        updateInfoBox("{default_text}");
-                    }}
-                  }});
-"""
-
 # stolen from https://github.com/pgadmin-org/pgadmin4/blob/master/web/pgadmin/static/js/Explain/ImageMapper.js
 # this will help create a similar UI to that of pgAdmin
 ImageMapper = {

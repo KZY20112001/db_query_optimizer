@@ -8,8 +8,8 @@ from tkinter import ttk, Tk, Text
 from pyvis.network import Network
 
 from preprocessing import DBConnection
-from constants import ImageMapper, div, default_text, css, js
-
+from js import div,  css, js
+from constants import ImageMapper
 # responsible for visualing a QEP that has been explained
 class Visualizer():
     def new_viz(self, plan: dict) -> None:
@@ -44,11 +44,11 @@ class Visualizer():
                     "background": "#E6ECF5"
                 }
             }
-
+            type = node[1].split('\n')[0]
             # uses the saved info for each networkX node and passes it to pyvis.Network node
             # the multipartite layout is used here to arrange the nodes
             img = f"img/{self.imagemap[node[0]]}"
-            net.add_node(node[0], label=node[1], x = pos[node[0]][0] * 1500, y = pos[node[0]][1] * 1500, shape="circularImage", image=img, borderWidth = 1.5, borderWidthSelected = 2, color=color, size=25)
+            net.add_node(node[0], label=node[1], type=type, x = pos[node[0]][0] * 1500, y = pos[node[0]][1] * 1500, shape="circularImage", image=img, borderWidth = 1.5, borderWidthSelected = 2, color=color, size=25)
         
         # add edges connecting the nodes
         for edge in graph.edges:
@@ -71,6 +71,7 @@ class Visualizer():
 
         # use image mapper to get the icon and text
         label = plan["Node Type"]
+        print("NODE: ", label)
         img = "ex_unknown.svg"
         if label in ImageMapper:
             if callable(ImageMapper[label]):
@@ -318,8 +319,6 @@ class App():
         query_res = db_connection.fetch_qep(query=self.query_input.get("1.0",'end-1c'))
         print("Generated result: ", query_res)
         
-        
-        # TO BE UPDATED FOR THE WHAT IF PROJECT 
         if type(query_res) == str:
             self.add_status(status=query_res)
         else:
