@@ -35,7 +35,7 @@ class Visualizer():
         net.toggle_physics(False)
 
         for node in list(graph.nodes(data="label")):
-            # change highlight color for each node
+             # change highlight color for each node
             color = {
                 "border": "#000000",
                 "background": "#FFFFFF",
@@ -71,18 +71,16 @@ class Visualizer():
 
         # use image mapper to get the icon and text
         label = plan["Node Type"]
-        print("NODE: ", label)
         img = "ex_unknown.svg"
         if label in ImageMapper:
             if callable(ImageMapper[label]):
                 img = (ImageMapper[label](plan))["image"]
-                label = (ImageMapper[label](plan))["image_text"]
             else:
                 img = ImageMapper[label]["image"]
-                label = ImageMapper[label]["image_text"]
-        
+
         # extra info from the plan itself 
         label += f"\n{plan['Startup Cost']}..{plan['Total Cost']}\n{plan['Plan Rows']} {'row' if plan['Plan Rows'] == 1 else 'rows'}"
+        print("Label: ", label)
         self.imagemap[self.node_id] = img
         # self.explainmap[self.node_id] = plan["Explanation"]
 
