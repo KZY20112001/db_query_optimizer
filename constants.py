@@ -1,5 +1,6 @@
 # stolen from https://github.com/pgadmin-org/pgadmin4/blob/master/web/pgadmin/static/js/Explain/ImageMapper.js
 # this will help create a similar UI to that of pgAdmin
+# maps images to types of nodes 
 ImageMapper = {
     'Aggregate': {'image': 'ex_aggregate.svg', 'image_text': 'Aggregate'},
     'Append': {'image': 'ex_append.svg', 'image_text': 'Append'},

@@ -17,10 +17,9 @@ def load_file(file_path):
 
 # Load raw JavaScript content from the external file for handling interactive graph
 js = load_file("web/script.js")
-
 css = load_file("web/info_box.css")
+info_html = load_file("web/info_box.html")
 
-div = load_file("web/info_box.html")
 class Visualizer():
     def new_viz(self, plan: dict) -> None:
         # initialize graph
@@ -81,6 +80,7 @@ class Visualizer():
 
         # use image mapper to get the icon and text
         label = plan["Node Type"]
+        print("node type: ", label)
         img = "ex_unknown.svg"
         if label in ImageMapper:
             if callable(ImageMapper[label]):
@@ -90,7 +90,6 @@ class Visualizer():
 
         # extra info from the plan itself 
         label += f"\n{plan['Startup Cost']}..{plan['Total Cost']}\n{plan['Plan Rows']} {'row' if plan['Plan Rows'] == 1 else 'rows'}"
-        print("Label: ", label)
         self.imagemap[self.node_id] = img
         # self.explainmap[self.node_id] = plan["Explanation"]
 
@@ -120,7 +119,7 @@ class Visualizer():
         while '<div id="mynetwork"' not in line:
             index, line = next(iter)
         
-        html.insert(index+1, div)
+        html.insert(index+1, info_html)
         
         # add right js before we return to override any other behaviour 
         while 'return network;' not in line:
@@ -322,10 +321,9 @@ class App():
 
         # we pass add_status to this function so it can use it internally to update the status as it goes on
         query_res = db_connection.fetch_qep(query=self.query_input.get("1.0",'end-1c'))
-        print("Generated result: ", query_res)
         
         if type(query_res) == str:
             self.add_status(status=query_res)
         else:
-            self.add_status("Explanations generated successfully! Visualizing now.")
+            self.add_status("Graph generated successfully!")
             VIZ.new_viz(plan=query_res[0][0][0]['Plan'])
