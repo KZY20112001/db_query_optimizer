@@ -2,23 +2,31 @@ import platform
 import os
 import networkx as nx
 import webbrowser
-
+import whatif
 from typing import List
-from tkinter import ttk, Tk, Text
+from tkinter import ttk, Tk, Text, Toplevel, IntVar
 from pyvis.network import Network
 
 from preprocessing import DBConnection
-from constants import ImageMapper, div, default_text, css, js
-
+from constants import ImageMapper
 # responsible for visualing a QEP that has been explained
+
+def load_file(file_path):
+    with open(file_path, 'r') as file:
+        return file.read()
+
+# Load raw JavaScript content from the external file for handling interactive graph
+js = load_file("web/script.js")
+css = load_file("web/info_box.css")
+info_html = load_file("web/info_box.html")
+
 class Visualizer():
-    def new_viz(self, plan: dict) -> None:
+    def new_viz(self, plan: dict, out_file: str = "QEP.html") -> None:
         # initialize graph
         graph = nx.DiGraph()
 
         self.node_id = 0
         self.imagemap = {}
-        self.explainmap = {}
 
         # populate graph
         self.add_nodes_and_edges(graph, plan, 0)
@@ -35,7 +43,7 @@ class Visualizer():
         net.toggle_physics(False)
 
         for node in list(graph.nodes(data="label")):
-            # change highlight color for each node
+             # change highlight color for each node
             color = {
                 "border": "#000000",
                 "background": "#FFFFFF",
@@ -44,18 +52,18 @@ class Visualizer():
                     "background": "#E6ECF5"
                 }
             }
-
+            type = node[1].split('\n')[0]
             # uses the saved info for each networkX node and passes it to pyvis.Network node
             # the multipartite layout is used here to arrange the nodes
             img = f"img/{self.imagemap[node[0]]}"
-            net.add_node(node[0], label=node[1], explanation=self.explainmap[node[0]], x = pos[node[0]][0] * 1500, y = pos[node[0]][1] * 1500, shape="circularImage", image=img, borderWidth = 1.5, borderWidthSelected = 2, color=color, size=25)
+            net.add_node(node[0], label=node[1], type=type, x = pos[node[0]][0] * 1500, y = pos[node[0]][1] * 1500, shape="circularImage", image=img, borderWidth = 1.5, borderWidthSelected = 2, color=color, size=25)
         
         # add edges connecting the nodes
         for edge in graph.edges:
             net.add_edge(edge[0], edge[1], color="black", width = 2, chosen=False, arrowStrikethrough=False)
 
         # pyvis generates the html file with interactive elements for us
-        output_file = "QEP.html"
+        output_file = out_file
         html_content = self.modify_html(net.generate_html().splitlines())
         with open(output_file, "w") as f:
             f.write(html_content)
@@ -75,15 +83,12 @@ class Visualizer():
         if label in ImageMapper:
             if callable(ImageMapper[label]):
                 img = (ImageMapper[label](plan))["image"]
-                label = (ImageMapper[label](plan))["image_text"]
             else:
                 img = ImageMapper[label]["image"]
-                label = ImageMapper[label]["image_text"]
-        
+
         # extra info from the plan itself 
-        label += f"\n{plan['Startup Cost']}..{plan['Total Cost']}\n{plan['Plan Rows']} {'row' if plan['Plan Rows'] == 1 else 'rows'}"
+        label += f"\nStartup Cost: {plan['Startup Cost']}\nTotal Cost: {plan['Total Cost']}\n{plan['Plan Rows']} {'row' if plan['Plan Rows'] == 1 else 'rows'}"
         self.imagemap[self.node_id] = img
-        self.explainmap[self.node_id] = plan["Explanation"]
 
         graph.add_node(self.node_id, subset=subset, label=label)
         if parent:
@@ -111,7 +116,7 @@ class Visualizer():
         while '<div id="mynetwork"' not in line:
             index, line = next(iter)
         
-        html.insert(index+1, div)
+        html.insert(index+1, info_html)
         
         # add right js before we return to override any other behaviour 
         while 'return network;' not in line:
@@ -150,7 +155,7 @@ def dark_title_bar(window: Tk, refresh: bool) -> None:
  
 # window sizes and global variables
 LOGIN_SIZE = (400, 375)
-APP_SIZE = (600, 500)
+APP_SIZE = (600, 700)
 VIZ = Visualizer()
 db_connection = DBConnection()
 # responsible for making the login frame
@@ -222,9 +227,6 @@ class Login:
         self.error_label["state"] = "disabled"
 
     def connect_btn_command(self) -> None:
-        # for user to cross-check
-        print(f"Password: {self.pw_input.get()}")
-
         # open connection
         connect_res = db_connection.connect_to_db(dbname=self.db_input.get(), user=self.user_input.get(), password=self.pw_input.get(), host=self.host_input.get(), port=self.port_input.get())
 
@@ -243,10 +245,11 @@ class Login:
 class App():
     def __init__(self, root:ttk.Frame, login_frame:ttk.Frame) -> None:
         self.login_frame = login_frame
-
-        # 2 equi-width columns
-        root.grid_columnconfigure(0, weight=1)
-        root.grid_columnconfigure(1, weight=1)
+        
+        # 3 equi-width columns
+        root.grid_columnconfigure(0, weight=1, uniform="buttons")
+        root.grid_columnconfigure(1, weight=1, uniform="buttons")
+        root.grid_columnconfigure(2, weight=1, uniform="buttons")
 
         # the 2nd row (explain input) will expand/shrink to fit into the window
         root.grid_rowconfigure(1, weight=1)
@@ -255,33 +258,41 @@ class App():
         disconnect_btn = ttk.Button(root, text="Disconnect", command=self.disconnect_btn_command)
 
         # alignment for label and disconnect button
-        header_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
-        disconnect_btn.grid(row=0, column=1, padx=10, pady=5, sticky="e")
+        header_label.grid(row=0, column=0, padx=10, pady=5, columnspan=3, sticky="w")
+        disconnect_btn.grid(row=0, column=2, padx=10, pady=5, sticky="e")
 
         # query_input assigned to the flexible row
         self.query_input = Text(root, height=25, highlightthickness=1, highlightbackground = "white", highlightcolor= "white")
-        self.query_input.grid(row=1,column=0,columnspan=2,pady=5,sticky="nsew")
+        self.query_input.grid(row=1,column=0, columnspan=3 ,pady=5, sticky="nsew")
 
-        # explain button
-        generate_btn = ttk.Button(root, text="Explain", command=self.generate_btn_command)
-        generate_btn.grid(row=2, column=0, columnspan=2, pady=5, padx=10)
+        # Generate QEP/AQP button
+        generate_btn = ttk.Button(root, text="Generate", command=self.generate_btn_command)
+        generate_btn.grid(row=2, column=1, pady=5, padx=10, sticky="nsew")
+
+        # Set Join Button
+        set_join_btn = ttk.Button(root, text="Select Join", command=self.select_join_btn_command)
+        set_join_btn.grid(row=2, column=0)
+
+        # Set Scan Button
+        set_scan_btn = ttk.Button(root, text="Select Scan", command=self.select_Scan_btn_command)
+        set_scan_btn.grid(row=2, column=2)
 
         # disabled to prevent editing
-        self.explain_status = Text(root, height=5, state="disabled")
-        self.explain_status.grid(row=3,column=0,columnspan=2,pady=5,sticky="nsew")
+        self.status = Text(root, height=20, state="disabled")
+        self.status.grid(row=3,column=0,columnspan=3, pady=5,sticky="nsew")
     
     # clears the status box
     def clear_status(self) -> None:
-        self.explain_status["state"] = "normal"
-        self.explain_status.delete(1.0,"end")
-        self.explain_status["state"] = "disabled"
+        self.status["state"] = "normal"
+        self.status.delete(1.0,"end")
+        self.status["state"] = "disabled"
     
     # appends to the status box. handles newlines automatically
     def add_status(self, status) -> None:
-        self.explain_status["state"] = "normal"
-        self.explain_status.insert("end", "\n" + status)
-        self.explain_status.yview_moveto(1.0)
-        self.explain_status["state"] = "disabled"
+        self.status["state"] = "normal"
+        self.status.insert("end", "\n" + status)
+        self.status.yview_moveto(1.0)
+        self.status["state"] = "disabled"
 
     # handle disconnect
     def disconnect_btn_command(self) -> None:
@@ -289,41 +300,109 @@ class App():
         self.clear_status()
         self.query_input.delete(1.0,"end")
         
-        # let the connection know about it
         db_connection.disconnect_from_db()
 
-        # move back to the login frame regardless of how CONN.disconnect went
         set_window_size(self.login_frame, LOGIN_SIZE)
         self.login_frame.tkraise()
     
 
         # clear any existing status info
         self.clear_status()
+    
+    def select_join_btn_command(self) -> None:
+        join_window = Toplevel()
+        join_window.title("Select Join Type")
+        join_text = ["hash join", "merge join", "nested loop join", "partitionwise join", "enable parallel hash join"]
+        selected_join = IntVar(value=join_text[0])
 
-        # # we pass add_status to this function so it can use it internally to update the status as it goes on
-        # explain_res = explain(query=self.query_input.get("1.0",'end-1c'), log_cb=self.add_status, force_analysis=True)
 
-        # CONN.explain returns a string if a fatal error is encountered
-        # otherwise it just gives us the plan which is a dictionary
-        # if type(explain_res) == str:
-        #     self.add_status(status=explain_res)
-        # else:
-        #     self.add_status("Explanations generated successfully! Visualizing now.")
-        #     VIZ.new_viz(plan=explain_res)
+        # Add a label for instructions
+        label = ttk.Label(join_window, text="Select the type of join:")
+        label.pack(pady=10)
+        # Create radio buttons for each join option
+        for index, option in enumerate(join_text):
+            radio_btn = ttk.Radiobutton(
+                join_window,
+                text=option,
+                value=index,
+                variable=selected_join
+            )
+            radio_btn.pack(anchor="w", padx=20)
 
-    # handle explain
+        confirm_btn = ttk.Button(join_window, text="Confirm", command=lambda: confirm_selection(selected_join.get()))
+        confirm_btn.pack(pady=10)
+        
+        def confirm_selection(selection):
+            join_options = ["enable_hashjoin", "enable_mergejoin", "enable_nestloop", "enable_partitionwise_join", "enable_parallel_hash"]
+            selected_value = join_options[selection]
+            self.add_status("Selected Join: " + selected_value)
+            for key in join_options:
+                if key != selected_value:
+                    whatif.query_settings[key] = False
+                else:
+                    whatif.query_settings[key] = True
+            print(whatif.query_settings)
+            join_window.destroy()
+            return
+    
+    def select_Scan_btn_command(self) -> None:
+        scan_window = Toplevel()
+        scan_window.title("Select Scan Type")
+        scan_text = ["bitmap scan", "index scan", "index only scan", "seq scan", "tid scan"]
+        selected_scan = IntVar(value=scan_text[0])
+
+
+        # Add a label for instructions
+        label = ttk.Label(scan_window, text="Select the type of scan:")
+        label.pack(pady=10)
+        # Create radio buttons for each join option
+        for index, option in enumerate(scan_text):
+            radio_btn = ttk.Radiobutton(
+                scan_window,
+                text=option,
+                value=index,
+                variable=selected_scan
+            )
+            radio_btn.pack(anchor="w", padx=20)
+
+        confirm_btn = ttk.Button(scan_window, text="Confirm", command=lambda: confirm_selection(selected_scan.get()))
+        confirm_btn.pack(pady=10)
+
+        def confirm_selection(selection):
+            join_options = ["enable_bitmapscan", "enable_indexscan", "enable_indexonlyscan", "enable_seqscan", "enable_tidscan"]
+            selected_value = join_options[selection]
+            self.add_status("Selected Scan: " + selected_value)
+            for key in join_options:
+                if key != selected_value:
+                    whatif.query_settings[key] = False
+                else:
+                    whatif.query_settings[key] = True
+            print(whatif.query_settings)
+            scan_window.destroy()
+            return
+        
+
+    # generate graph
     def generate_btn_command(self) -> None:
         # clear any existing status info
         self.clear_status()
 
         # we pass add_status to this function so it can use it internally to update the status as it goes on
         query_res = db_connection.fetch_qep(query=self.query_input.get("1.0",'end-1c'))
-        print("Generated result: ", query_res)
+        aqp_res = db_connection.modify_qep(query=self.query_input.get("1.0",'end-1c'), modifiers=whatif.query_settings)
+
+        qep_stats, aqp_stats, difference = whatif.compare_qp(query_res,aqp_res)        
         
-        
-        # TO BE UPDATED FOR THE WHAT IF PROJECT 
-        if type(query_res) == str:
-            self.add_status(status=query_res)
+        if aqp_stats is not None or difference is not None:
+            self.add_status(qep_stats)
+            self.add_status(aqp_stats)
+            self.add_status(difference)
+            VIZ.new_viz(plan=query_res, out_file="QEP.html")
+            VIZ.new_viz(plan=aqp_res, out_file="AQP.html")
         else:
-            self.add_status("Explanations generated successfully! Visualizing now.")
-            VIZ.new_viz(plan=query_res)
+            self.add_status("No modification made")
+            self.add_status(qep_stats)    
+            VIZ.new_viz(plan=query_res, out_file="QEP.html")
+        
+        whatif.reset_settings(whatif.query_settings)
+            
