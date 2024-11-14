@@ -44,15 +44,6 @@ def print_stats(plan):
 
 
 def compare_cost(qep, aqp):
-    qep_startup_cost = qep['Startup Cost']
-    qep_total_cost = qep['Total Cost']
-    qep_plan_row = qep['Plan Rows']
-    qep_plan_width = qep['Plan Width']
-
-    aqp_startup_cost = aqp['Startup Cost']
-    aqp_total_cost = aqp['Total Cost']
-    aqp_plan_row = aqp['Plan Rows']
-    aqp_plan_width = aqp['Plan Width']
 
     qep_output = (
         f"QEP:\n"
@@ -85,20 +76,14 @@ def compare_qp(qep, aqp):
     if qep is not None and aqp is not None:
         if qep == aqp:
             print("No modification made")
-            qep_plan = qep[0][0][0]['Plan']
-            qep_stats = print_stats(qep_plan)
+            qep_stats = print_stats(qep)
             print (qep_stats)
-
             return qep_stats, None, None
         else:
-            qep_plan = qep[0][0][0]['Plan']
-            aqp_plan = aqp[0][0][0]['Plan']
-            qep_stats, aqp_stats, difference = compare_cost(qep_plan, aqp_plan)
-
+            qep_stats, aqp_stats, difference = compare_cost(qep, aqp)
             print(qep_stats)
             print(aqp_stats)
             print(difference)
-
             return qep_stats, aqp_stats, difference
 
 

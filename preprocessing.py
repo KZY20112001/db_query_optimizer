@@ -1,6 +1,4 @@
-from typing import List
 import psycopg2
-import json
 
 # class responsible for handling connecting to db server and handling the queries
 class DBConnection(): 
@@ -40,7 +38,7 @@ class DBConnection():
         qep = cur.fetchall()
         cur.close()
 
-        return qep
+        return qep[0][0][0]["Plan"]
 
     def fetch_qep_node_only(self, query:str):
         if not self.isConnected():
@@ -69,7 +67,7 @@ class DBConnection():
         # Reset the executed modifiers
         cur.execute("RESET ALL;")
         cur.close()
-        return qep
+        return qep[0][0][0]["Plan"]
     
     def plan_outline(self, dict, lvl=0):
         indent = "    " * lvl
@@ -90,37 +88,3 @@ class DBConnection():
         else:
             return
 
-# Example usage:
-conn = DBConnection()
-query = "SELECT * FROM orders WHERE o_orderkey = 1;"
-qep = conn.fetch_qep(query)
-modifiers = ["enable_hashjoin = off", "enable_mergejoin = on"]
-aqep = conn.modify_qep(query, modifiers)
-print("Query Execution Plan:")
-print(qep)
-print("Modified Query Execution Plan:")
-print(aqep)
-
-''' 
-What the stats represent: 
-Node Type: The type of operation being performed at this step in the execution plan.
-Parallel Aware: Indicates whether the operation is aware of parallel execution.
-Async Capable: Indicates whether the operation can be performed asynchronously.
-Scan Direction: Indicates the direction of the scan on the index
-Index Name: The name of the index being used for the scan
-Relation Name: The name of the table being scanned
-Alias: The alias for the table used in the query 
-Startup Cost: The estimated cost (in arbitrary units) to start returning the first row.
-Total Cost: The estimated total cost to process the entire query. 
-Plan Rows: The estimated number of rows PostgreSQL expects this step to return. 
-Plan Width: The estimated average size (in bytes) of a row returned by this operation. 
-Actual Startup Time: The actual time (in milliseconds) PostgreSQL took to start returning the first row of this step.
-Actual Total Time: The actual total time taken by this step to complete execution. 
-Actual Rows: The actual number of rows returned by this step. 
-Actual Loops: The number of times this step was executed (important in case of nested loops). 
-Index Cond: The condition used by the index to filter rows. 
-Rows Removed by Index Recheck: The number of rows that were removed during a recheck of the index. This occurs when PostgreSQL needs to confirm that the indexed condition matches the query condition.
-Planning Time: The time PostgreSQL spent planning the execution of the query (in milliseconds).
-Triggers: If any triggers (procedural code that gets executed automatically) were executed during the query, this section would list them.
-Execution Time: The total time taken to execute the entire query, including all steps.
-'''

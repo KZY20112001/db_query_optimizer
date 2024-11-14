@@ -79,7 +79,6 @@ class Visualizer():
 
         # use image mapper to get the icon and text
         label = plan["Node Type"]
-        print("node type: ", label)
         img = "ex_unknown.svg"
         if label in ImageMapper:
             if callable(ImageMapper[label]):
@@ -367,7 +366,7 @@ class App():
 
         confirm_btn = ttk.Button(scan_window, text="Confirm", command=lambda: confirm_selection(selected_scan.get()))
         confirm_btn.pack(pady=10)
-
+        
         def confirm_selection(selection):
             join_options = ["enable_bitmapscan", "enable_indexscan", "enable_indexonlyscan", "enable_seqscan", "enable_tidscan"]
             selected_value = join_options[selection]
@@ -379,6 +378,7 @@ class App():
             print(whatif.query_settings)
             scan_window.destroy()
             return
+        
 
     # generate graph
     def generate_btn_command(self) -> None:
@@ -391,18 +391,17 @@ class App():
 
         qep_stats, aqp_stats, difference = whatif.compare_qp(query_res,aqp_res)        
         
-        # TO BE UPDATED FOR THE WHAT IF PROJECT 
         if aqp_stats is not None or difference is not None:
             self.add_status(qep_stats)
             self.add_status(aqp_stats)
             self.add_status(difference)
 
-            VIZ.new_viz(plan=query_res[0][0][0]['Plan'])
-            VIZ.new_viz(plan=aqp_res[0][0][0]['Plan'], out_file="AQP.html")
+            VIZ.new_viz(plan=query_res, out_file="QEP.html")
+            VIZ.new_viz(plan=aqp_res, out_file="AQP.html")
         else:
             self.add_status("No modification made")
             self.add_status(qep_stats)    
-            VIZ.new_viz(plan=query_res[0][0][0]['Plan'])
+            VIZ.new_viz(plan=query_res, out_file="QEP.html")
         
         whatif.reset_settings(whatif.query_settings)
             

@@ -1,3 +1,4 @@
+//iteractive graph code
 const JOIN_METHODS = ["Hash Join", "Merge Join", "Nested Loop"]; 
 
 const SCAN_METHODS = [
@@ -122,7 +123,7 @@ network.on('click', function(properties) {
         else updateInfoBox(type);
                 
     } else {
-        const default_text = "Click a node (operator) to get all the relevant info! Extra comments are provided for mismatching costs."
+        const default_text = "Click a node (operator) to get quick info!";
         updateInfoBox(`${default_text}`);
     }   
 });
