@@ -1,15 +1,12 @@
 //iteractive graph code
-const JOIN_METHODS = ["Hash Join", "Merge Join", "Nested Loop"]; 
+const JOIN_METHODS = ["Hash Join", "Merge Join", "Nested Loop", "Partitionwise Join", "Parallel Hash Join"]; 
 
 const SCAN_METHODS = [
     "Seq Scan",
     "Index Scan",
-    "Bitmap Heap Scan",
+    "Bitmap Scan",
     "Index Only Scan",
-    "Tid Scan",
-    "Foreign Scan",
-    "Custom Scan",
-    "Materialized View Scan"
+    "TID Scan",
 ];
 
 
@@ -23,7 +20,7 @@ function updateInfoBox(content) {
 function showAlternatives(type, list) {
     let alternatives = list.filter(item => item !== type);
 
-    let ulHtml = '<h3>Alternative</h3> <ul>';
+    let ulHtml = '<h3>Alternative Plans</h3> <ul>';
 
     alternatives.forEach(item => {
         ulHtml += `<li>${item}</li>`; 
@@ -50,6 +47,17 @@ function getJoinDetails(type){
                 <h2>Nested Loop</h2>
                 <p>Suitable for smaller datasets or when an index is used on the inner table.</p>
             `;
+        case "Partitionwise Join":
+            return `
+                <h2>Partitionwise Join</h2>
+                <p>Optimizes joins on partitioned tables by processing each partition individually. Effective when both tables are partitioned in a compatible way.</p>
+            `;
+        case "Parallel Hash Join":
+            return `
+                <h2>Parallel Hash Join</h2>
+                <p>Uses multiple CPU cores to speed up hash join operations, especially beneficial for large tables. Requires adequate parallel configuration.</p>
+            `;
+        
         default:
             return "<p>Unknown Join Type.</p>";
     }
@@ -68,35 +76,20 @@ function getScanDetails(type) {
                 <h2>Index Scan</h2>
                 <p>Uses an index to find matching rows quickly. Efficient when querying a small subset of the table with an appropriate index.</p>
             `;
-        case "Bitmap Heap Scan":
+        case "Bitmap Scan":
             return `
-                <h2>Bitmap Heap Scan</h2>
-                <p>Uses a bitmap to track matching rows from the index and then fetches the rows from the table. Efficient for complex queries with multiple conditions.</p>
+                <h2>Bitmap Scan</h2>
+                <p>Combines an index with a bitmap to mark relevant rows, then retrieves them in bulk. Useful when many rows need to be accessed, reducing random I/O.</p>
             `;
         case "Index Only Scan":
             return `
                 <h2>Index Only Scan</h2>
-                <p>Reads the data directly from the index without accessing the table, which improves performance when all needed columns are in the index.</p>
+                <p>Retrieves data directly from the index without accessing the main table, provided the index contains all required columns. Ideal for queries where data is fully visible in the index.</p>
             `;
-        case "Tid Scan":
+        case "TID Scan":
             return `
-                <h2>Tid Scan</h2>
-                <p>Accesses rows directly by their internal tuple ID (TID). Useful when rows are identified by their ctid value.</p>
-            `;
-        case "Foreign Scan":
-            return `
-                <h2>Foreign Scan</h2>
-                <p>Used for scanning data from foreign tables or external data sources via a foreign data wrapper.</p>
-            `;
-        case "Materialized View Scan":
-            return `
-                <h2>Materialized View Scan</h2>
-                <p>Scans data from a materialized view, which stores precomputed results to avoid recalculating them on every query.</p>
-            `;
-        case "Custom Scan":
-            return `
-                <h2>Custom Scan</h2>
-                <p>A user-defined scan that can be used to implement custom behaviors or scan strategies, often used in extensions.</p>
+                <h2>TID Scan (Tuple ID Scan)</h2>
+                <p>Fetches rows based on their physical storage locations (tuple IDs). Used for precise row access when the row location is known, but less common in general querying.</p>
             `;
         default:
             return "<p>Unknown Scan Type.</p>";

@@ -331,10 +331,11 @@ class App():
 
         confirm_btn = ttk.Button(join_window, text="Confirm", command=lambda: confirm_selection(selected_join.get()))
         confirm_btn.pack(pady=10)
-
+        
         def confirm_selection(selection):
             join_options = ["enable_hashjoin", "enable_mergejoin", "enable_nestloop", "enable_partitionwise_join", "enable_parallel_hash"]
             selected_value = join_options[selection]
+            self.add_status("Selected Join: " + selected_value)
             for key in join_options:
                 if key != selected_value:
                     whatif.query_settings[key] = False
@@ -366,10 +367,11 @@ class App():
 
         confirm_btn = ttk.Button(scan_window, text="Confirm", command=lambda: confirm_selection(selected_scan.get()))
         confirm_btn.pack(pady=10)
-        
+
         def confirm_selection(selection):
             join_options = ["enable_bitmapscan", "enable_indexscan", "enable_indexonlyscan", "enable_seqscan", "enable_tidscan"]
             selected_value = join_options[selection]
+            self.add_status("Selected Scan: " + selected_value)
             for key in join_options:
                 if key != selected_value:
                     whatif.query_settings[key] = False
@@ -395,7 +397,6 @@ class App():
             self.add_status(qep_stats)
             self.add_status(aqp_stats)
             self.add_status(difference)
-
             VIZ.new_viz(plan=query_res, out_file="QEP.html")
             VIZ.new_viz(plan=aqp_res, out_file="AQP.html")
         else:
