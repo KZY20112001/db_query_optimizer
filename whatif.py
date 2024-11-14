@@ -23,7 +23,9 @@ query_settings = {
     'enable_tidscan': True,
 }
 
-scan_join_nodes = ['Seq Scan', 'Index Only Scan', 'Index Scan', 'Bitmap Heap Scan', 'Bitmap Index Scan']
+def reset_settings(query_settings):
+    for rule in query_settings:
+        query_settings[rule] = True
 
 def print_stats(plan):
     startup_cost = plan['Startup Cost']
@@ -31,10 +33,15 @@ def print_stats(plan):
     plan_row = plan['Plan Rows']
     plan_width = plan['Plan Width']
 
-    print(f"Startup Cost: {startup_cost}")
-    print(f"Total Cost: {total_cost}")
-    print(f"Plan Rows: {plan_row}")
-    print(f"Tuple Size: {plan_width}")  
+    stats = (
+        f"Estimated Startup Cost: {startup_cost}\n"
+        f"Estimated Total Cost: {total_cost}\n"
+        f"Estimated Plan Rows: {plan_row}\n"
+        f"Estimated Tuple Size: {plan_width}"
+    )
+
+    return stats
+
 
 def compare_cost(qep, aqp):
     qep_startup_cost = qep['Startup Cost']
@@ -47,23 +54,30 @@ def compare_cost(qep, aqp):
     aqp_plan_row = aqp['Plan Rows']
     aqp_plan_width = aqp['Plan Width']
 
-    print("QEP:")
-    print(f"Startup Cost: {qep_startup_cost}")
-    print(f"Total Cost: {qep_total_cost}")
-    print(f"Plan Rows: {qep_plan_row}")
-    print(f"Tuple Size: {qep_plan_width}") 
+    qep_output = (
+        f"QEP:\n"
+        f"Estimated Startup Cost: {qep['Startup Cost']}\n"
+        f"Estimated Total Cost: {qep['Total Cost']}\n"
+        f"Estimated Plan Rows: {qep['Plan Rows']}\n"
+        f"Estimated Tuple Size: {qep['Plan Width']}\n"
+    )
 
-    print("AQP:")
-    print(f"Startup Cost: {aqp_startup_cost}")
-    print(f"Total Cost: {aqp_total_cost}")
-    print(f"Plan Rows: {aqp_plan_row}")
-    print(f"Tuple Size: {aqp_plan_width}")
+    aqp_output = (
+        f"AQP:\n"
+        f"Estimated Startup Cost: {aqp['Startup Cost']}\n"
+        f"Estimated Total Cost: {aqp['Total Cost']}\n"
+        f"Estimated Plan Rows: {aqp['Plan Rows']}\n"
+        f"Estimated Tuple Size: {aqp['Plan Width']}\n"
+    )
 
-    print("Difference:")
-    print(f"Startup Cost: {aqp_startup_cost - qep_startup_cost}")
-    print(f"Total Cost: {aqp_total_cost - qep_total_cost}")
-    print(f"Plan Rows: {aqp_plan_row - qep_plan_row}")
-    print(f"Tuple Size: {aqp_plan_width - qep_plan_width}")
+    difference_output = (
+        f"Difference:\n"
+        f"Estimated Startup Cost: {aqp['Startup Cost'] - qep['Startup Cost']}\n"
+        f"Estimated Total Cost: {aqp['Total Cost'] - qep['Total Cost']}\n"
+        f"Estimated Plan Rows: {aqp['Plan Rows'] - qep['Plan Rows']}\n"
+        f"Estimated Tuple Size: {aqp['Plan Width'] - qep['Plan Width']}\n"
+    )
+    return qep_output, aqp_output, difference_output
 
 
 
@@ -72,16 +86,20 @@ def compare_qp(qep, aqp):
         if qep == aqp:
             print("No modification made")
             qep_plan = qep[0][0][0]['Plan']
-            print_stats(qep_plan)
+            qep_stats = print_stats(qep_plan)
+            print (qep_stats)
 
-            sub_plan = qep_plan['Plans'][0]
-            print_stats(sub_plan)
-
+            return qep_stats, None, None
         else:
             qep_plan = qep[0][0][0]['Plan']
             aqp_plan = aqp[0][0][0]['Plan']
-            compare_cost(qep_plan, aqp_plan)
-            print(aqp_plan)
+            qep_stats, aqp_stats, difference = compare_cost(qep_plan, aqp_plan)
+
+            print(qep_stats)
+            print(aqp_stats)
+            print(difference)
+
+            return qep_stats, aqp_stats, difference
 
 
 

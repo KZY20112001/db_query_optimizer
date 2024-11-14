@@ -5,7 +5,6 @@ docker cp DML.sql pg_container:/
 docker cp data pg_container:/
 echo "Copied relevant files"
 
-
 :: Run init scripts
 echo "Running Data Definition Language script..."
 docker exec pg_container psql tpch -U postgres -f DDL.sql

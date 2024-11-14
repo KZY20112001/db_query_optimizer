@@ -19,7 +19,7 @@ This will initialise a dockerized instance of the PostgreSQL database with TPC-H
 3.  Start the PostgreSQL database up by running the docker image.
 
     ```
-    docker compose up
+    docker compose up -d
     ```
 
 4.  When the containers are up, initialise the database by running the initialisation batch script. This should take around 5-6 minutes.

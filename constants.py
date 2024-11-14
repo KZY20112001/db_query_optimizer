@@ -1,6 +1,6 @@
 
 # text shown in the top right to guide the user
-default_text = "Click a node (operator) to get all the relevant info! Extra comments are provided for mismatching costs."
+default_text = "When setting the Join/Scan type, note that it affects every Join/Scan Operations."
 
 # css for the info box
 css = """            #info-box {
