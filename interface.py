@@ -8,9 +8,19 @@ from tkinter import ttk, Tk, Text
 from pyvis.network import Network
 
 from preprocessing import DBConnection
-from js import div,  css, js
 from constants import ImageMapper
 # responsible for visualing a QEP that has been explained
+
+def load_file(file_path):
+    with open(file_path, 'r') as file:
+        return file.read()
+
+# Load raw JavaScript content from the external file for handling interactive graph
+js = load_file("web/script.js")
+
+css = load_file("web/info_box.css")
+
+div = load_file("web/info_box.html")
 class Visualizer():
     def new_viz(self, plan: dict) -> None:
         # initialize graph
@@ -221,9 +231,6 @@ class Login:
         self.error_label["state"] = "disabled"
 
     def connect_btn_command(self) -> None:
-        # for user to cross-check
-        print(f"Password: {self.pw_input.get()}")
-
         # open connection
         connect_res = db_connection.connect_to_db(dbname=self.db_input.get(), user=self.user_input.get(), password=self.pw_input.get(), host=self.host_input.get(), port=self.port_input.get())
 
