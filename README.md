@@ -19,7 +19,7 @@ This process can be skipped if you already have the PostgreSQL server running wi
 
 3. Activate the virtual environment by running
 
-    Windows: `./venv/Scripts/activate`
+    Windows: `.\venv\Scripts\activate`
 
     Unix/macOS: `source .venv/bin/activate`
 
