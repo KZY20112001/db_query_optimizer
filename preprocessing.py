@@ -40,17 +40,6 @@ class DBConnection():
 
         return qep[0][0][0]["Plan"]
 
-    def fetch_qep_node_only(self, query:str):
-        if not self.isConnected():
-            return 
-        
-        cur = self.connection.cursor()
-        cur.execute(f"EXPLAIN (FORMAT JSON, costs false, timing false, verbose false, buffers false) {query}")
-        qep = cur.fetchall()
-        cur.close()
-
-        return qep[0][0][0]["Plan"]
-
     # this function modifies the query execution plan based on the modifiers provided
     def modify_qep(self, query: str, modifiers: dict[str]):
         if not self.isConnected():
@@ -68,23 +57,4 @@ class DBConnection():
         cur.execute("RESET ALL;")
         cur.close()
         return qep[0][0][0]["Plan"]
-    
-    def plan_outline(self, dict, lvl=0):
-        indent = "    " * lvl
-        print(f"{indent}- Node Type: {dict.get('Node Type')}")
-        if 'Join Type' in dict:
-            print(f"{indent}  Join Type: {dict.get('Join Type')}")
-        if 'Relation Name' in dict:
-            print(f"{indent}  Relation Name: {dict.get('Relation Name')}")
-        if 'Alias' in dict:
-            print(f"{indent}  Alias: {dict.get('Alias')}")
-        if 'Index Name' in dict:
-            print(f"{indent}  Index Name: {dict.get('Index Name')}")
-        if 'Filter' in dict:
-            print(f"{indent}  Filter: {dict.get('Filter')}")
-        if 'Plans' in dict:
-            for sub_node in dict.get('Plans'):
-                self.plan_outline(sub_node, lvl + 1)
-        else:
-            return
 
