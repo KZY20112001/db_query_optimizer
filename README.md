@@ -19,9 +19,9 @@ This process can be skipped if you already have the PostgreSQL server running wi
 
 3. Activate the virtual environment by running
 
-    Windows: `.venv\Scripts\activate`
+    Windows: ```.venv\Scripts\activate```
 
-    Unix/macOS: `source .venv/bin/activate`
+    Unix/macOS: ```source .venv/bin/activate```
 
 4. Install required dependencies
 
@@ -34,4 +34,4 @@ This process can be skipped if you already have the PostgreSQL server running wi
 
 6. If you followed the database set-up above, you can use the password `admin` to connect to the database server (the other fields will be pre-filled). If you are using your own server, fill in the relevant details and connect to the server. 
 
-7. For testing, you can use the sample queries in `test_queries` folder. 
+7. For testing, you can use the sample queries in `test_queries` folder (copy and paste the queries into the application). 
