@@ -31,3 +31,7 @@ This process can be skipped if you already have the PostgreSQL server running wi
 5. Start the program in the root folder by running
 
     ```python project.py```
+
+6. If you followed the database set-up above, you can use the password `admin` to connect to the database server (the other fields will be pre-filled). If you are using your own server, fill in the relevant details and connect to the server. 
+
+7. For testing, you can use the sample queries in `test_queries` folder. 
