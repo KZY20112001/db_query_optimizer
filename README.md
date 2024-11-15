@@ -10,14 +10,24 @@ This process can be skipped if you already have the PostgreSQL server running wi
 ### Running the program
 
 1. Install virtual environment by running 
-    `pip install virtualenv`
+
+    ```pip install virtualenv```
 
 2. Create a virtual environment by running
-    `python -m venv .venv`
+
+    ```python -m venv .venv```
 
 3. Activate the virtual environment by running
+
     Windows: `./venv/Scripts/activate`
+
     Unix/macOS: `source .venv/bin/activate`
 
-4. Start the program in the root folder by running
-    `python project.py`
+4. Install required dependencies
+
+    ```pip install -r requirements.txt```
+
+
+5. Start the program in the root folder by running
+
+    ```python project.py```
