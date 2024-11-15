@@ -21,7 +21,7 @@ This process can be skipped if you already have the PostgreSQL server running wi
 
     Windows: ```.venv\Scripts\activate```
 
-    Unix/macOS: ```source .venv/bin/activate```
+    Unix/macOS: ```source .venv\bin\activate```
 
 4. Install required dependencies
 
