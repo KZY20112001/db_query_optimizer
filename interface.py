@@ -187,7 +187,7 @@ class Login:
         self.user_input.grid(row=2,column=1,pady=5,padx=10)
 
         # DB server password input
-        pw_label=ttk.Label(root, justify="center", text="Pass:")
+        pw_label=ttk.Label(root, justify="center", text="Password:")
         pw_label.grid(row=4,column=0)
 
         self.pw_input=ttk.Entry(root, justify="center", show="*")
@@ -270,11 +270,11 @@ class App():
         generate_btn.grid(row=2, column=1, pady=5, padx=10, sticky="nsew")
 
         # Set Join Button
-        set_join_btn = ttk.Button(root, text="Select Join", command=self.select_join_btn_command)
+        set_join_btn = ttk.Button(root, text="Select Join for AQP", command=self.select_join_btn_command)
         set_join_btn.grid(row=2, column=0)
 
         # Set Scan Button
-        set_scan_btn = ttk.Button(root, text="Select Scan", command=self.select_Scan_btn_command)
+        set_scan_btn = ttk.Button(root, text="Select Scan for AQP", command=self.select_Scan_btn_command)
         set_scan_btn.grid(row=2, column=2)
 
         # disabled to prevent editing
@@ -341,7 +341,6 @@ class App():
                     whatif.query_settings[key] = False
                 else:
                     whatif.query_settings[key] = True
-            print(whatif.query_settings)
             join_window.destroy()
             return
     
@@ -377,15 +376,12 @@ class App():
                     whatif.query_settings[key] = False
                 else:
                     whatif.query_settings[key] = True
-            print(whatif.query_settings)
             scan_window.destroy()
             return
         
 
     # generate graph
     def generate_btn_command(self) -> None:
-        # clear any existing status info
-        self.clear_status()
 
         # we pass add_status to this function so it can use it internally to update the status as it goes on
         query_res = db_connection.fetch_qep(query=self.query_input.get("1.0",'end-1c'))
@@ -394,14 +390,18 @@ class App():
         qep_stats, aqp_stats, difference = whatif.compare_qp(query_res,aqp_res)        
         
         if aqp_stats is not None or difference is not None:
+            self.add_status('\n')
             self.add_status(qep_stats)
             self.add_status(aqp_stats)
             self.add_status(difference)
+            self.add_status('\n')
             VIZ.new_viz(plan=query_res, out_file="QEP.html")
             VIZ.new_viz(plan=aqp_res, out_file="AQP.html")
         else:
             self.add_status("No modification made")
-            self.add_status(qep_stats)    
+            self.add_status(qep_stats)
+            self.add_status('\n')
+    
             VIZ.new_viz(plan=query_res, out_file="QEP.html")
         
         whatif.reset_settings(whatif.query_settings)

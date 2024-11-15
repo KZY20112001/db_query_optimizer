@@ -30,7 +30,7 @@ This will initialise a dockerized instance of the PostgreSQL database with TPC-H
 
 -   If you delete the containers, you will have to rerun the initial setup steps again.
 
-## Interacting with database using pgAdmin
+## (Optional) Interacting with database using pgAdmin
 
 You can view that the database has been correctly generated and also query the database using pgAdmin
 
@@ -43,9 +43,9 @@ You can view that the database has been correctly generated and also query the d
 1. Create new server
     - Create “TPC-H" as server name under General -> Name
     - Under Connection:
-        - Change address to `pg_container`
-        - Change Username to `postgres`
-        - Set Password to `admin`
+        - Enter address `pg_container`
+        - Enter Username `postgres`
+        - Enter Password `admin`
 1. Click on "Save".
 1. You can now interact with the Database, check `TPC-H -> Databases -> tpch -> Schemas -> Public -> Tables`. You can use the query editor by right clicking and using the Query Tool.
 1. You should be able to access pgAdmin and the PostgreSQL database should be preserved between sessions.

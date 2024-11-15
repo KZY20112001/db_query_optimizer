@@ -4,7 +4,8 @@ const JOIN_METHODS = ["Hash Join", "Merge Join", "Nested Loop", "Partitionwise J
 const SCAN_METHODS = [
     "Seq Scan",
     "Index Scan",
-    "Bitmap Scan",
+    "Bitmap Heap Scan",
+    "Bitmap Index Scan", 
     "Index Only Scan",
     "TID Scan",
 ];
@@ -71,16 +72,30 @@ function getScanDetails(type) {
                 <h2>Seq Scan (Sequential Scan)</h2>
                 <p>Reads the entire table row by row. Best used when no indexes exist or when scanning a large portion of the table.</p>
             `;
+        
         case "Index Scan":
             return `
                 <h2>Index Scan</h2>
                 <p>Uses an index to find matching rows quickly. Efficient when querying a small subset of the table with an appropriate index.</p>
             `;
-        case "Bitmap Scan":
+        
+        case "Bitmap Index Scan":
             return `
-                <h2>Bitmap Scan</h2>
-                <p>Combines an index with a bitmap to mark relevant rows, then retrieves them in bulk. Useful when many rows need to be accessed, reducing random I/O.</p>
+                <h2>Bitmap Index Scan</h2>
+                <p>Creates a bitmap (a compressed list of row locations) based on an index to identify matching rows for a specific condition. 
+                This operation is efficient for finding rows that match one or more conditions, especially when many rows meet the criteria.
+                It doesn’t retrieve the rows directly but rather marks their locations.</p>
+                <p>Useful for large datasets or queries with multiple conditions, as it reduces the need for random I/O.</p>
             `;
+        
+        case "Bitmap Heap Scan":
+            return `
+                <h2>Bitmap Heap Scan</h2>
+                <p>Uses the bitmap created by the Bitmap Index Scan to efficiently retrieve only the relevant rows from the table.
+                By accessing marked blocks of rows, this scan minimizes unnecessary I/O, making it faster to load large numbers of matched rows.</p>
+                <p>Often used together with Bitmap Index Scan for large datasets to optimize disk access and performance.</p>
+            `;
+
         case "Index Only Scan":
             return `
                 <h2>Index Only Scan</h2>
