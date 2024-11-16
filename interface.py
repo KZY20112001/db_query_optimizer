@@ -314,7 +314,18 @@ class App():
         join_window.title("Select Join Type")
         join_text = ["hash join", "merge join", "nested loop join"]
         selected_join = IntVar(value=join_text[0])
+        
+        window_width = 300
+        window_height = 200
 
+        screen_width = join_window.winfo_screenwidth()
+        screen_height = join_window.winfo_screenheight()
+        
+        position_x = int((screen_width / 2) - (window_width / 2))
+        position_y = int((screen_height / 2) - (window_height / 2))
+
+        # Set the geometry of the pop-up window
+        join_window.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
 
         # Add a label for instructions
         label = ttk.Label(join_window, text="Select the type of join:")
@@ -350,6 +361,17 @@ class App():
         scan_text = ["bitmap scan", "index scan", "index only scan", "seq scan"]
         selected_scan = IntVar(value=scan_text[0])
 
+        window_width = 300
+        window_height = 200
+
+        screen_width = scan_window.winfo_screenwidth()
+        screen_height = scan_window.winfo_screenheight()
+        
+        position_x = int((screen_width / 2) - (window_width / 2))
+        position_y = int((screen_height / 2) - (window_height / 2))
+
+        # Set the geometry of the pop-up window
+        scan_window.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
 
         # Add a label for instructions
         label = ttk.Label(scan_window, text="Select the type of scan:")
@@ -382,10 +404,16 @@ class App():
 
     # generate graph
     def generate_btn_command(self) -> None:
+        query_input = self.query_input.get("1.0", 'end-1c').strip()
 
+        # Check if the input is empty
+        if not query_input:
+            self.add_status("No query input provided.\n")
+            return
+        
         # we pass add_status to this function so it can use it internally to update the status as it goes on
-        query_res = db_connection.fetch_qep(query=self.query_input.get("1.0",'end-1c'))
-        aqp_res = db_connection.modify_qep(query=self.query_input.get("1.0",'end-1c'), modifiers=whatif.query_settings)
+        query_res = db_connection.fetch_qep(query=query_input)
+        aqp_res = db_connection.modify_qep(query=query_input, modifiers=whatif.query_settings)
 
         qep_stats, aqp_stats, difference = whatif.compare_qp(query_res,aqp_res)        
         
