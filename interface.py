@@ -312,7 +312,7 @@ class App():
     def select_join_btn_command(self) -> None:
         join_window = Toplevel()
         join_window.title("Select Join Type")
-        join_text = ["hash join", "merge join", "nested loop join", "partitionwise join", "enable parallel hash join"]
+        join_text = ["hash join", "merge join", "nested loop join"]
         selected_join = IntVar(value=join_text[0])
 
 
@@ -333,7 +333,7 @@ class App():
         confirm_btn.pack(pady=10)
         
         def confirm_selection(selection):
-            join_options = ["enable_hashjoin", "enable_mergejoin", "enable_nestloop", "enable_partitionwise_join", "enable_parallel_hash"]
+            join_options = ["enable_hashjoin", "enable_mergejoin", "enable_nestloop"]
             selected_value = join_options[selection]
             self.add_status("Selected Join: " + selected_value)
             for key in join_options:
@@ -347,7 +347,7 @@ class App():
     def select_Scan_btn_command(self) -> None:
         scan_window = Toplevel()
         scan_window.title("Select Scan Type")
-        scan_text = ["bitmap scan", "index scan", "index only scan", "seq scan", "tid scan"]
+        scan_text = ["bitmap scan", "index scan", "index only scan", "seq scan"]
         selected_scan = IntVar(value=scan_text[0])
 
 
@@ -368,7 +368,7 @@ class App():
         confirm_btn.pack(pady=10)
 
         def confirm_selection(selection):
-            join_options = ["enable_bitmapscan", "enable_indexscan", "enable_indexonlyscan", "enable_seqscan", "enable_tidscan"]
+            join_options = ["enable_bitmapscan", "enable_indexscan", "enable_indexonlyscan", "enable_seqscan"]
             selected_value = join_options[selection]
             self.add_status("Selected Scan: " + selected_value)
             for key in join_options:
