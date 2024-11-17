@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg
 
 # class responsible for handling connecting to db server and handling the queries
 class DBConnection(): 
@@ -11,8 +11,8 @@ class DBConnection():
     def connect_to_db(self, dbname:str = "tpch", user:str = "postgres", password:str = "admin", host:str ="localhost", port:str = "5432") -> str:
         self.disconnect_from_db()
         try: 
-            conn = psycopg2.connect(
-                database=dbname,   
+            conn = psycopg.connect(
+                dbname=dbname,   
                 user=user,
                 password=password,  
                 host=host,  
