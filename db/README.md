@@ -8,7 +8,7 @@ This will initialise a dockerized instance of the PostgreSQL database with TPC-H
 
 ## Initial setup:
 
-1.  For custom set up, you can copy your `.tbl` files to the `tbls` directory (the default files are provided for convenience)
+1.  For custom set up, you can copy your `.tbl` files to the `tbls` directory.
    
 2.  Run the cleaning script to generate the `.csv` files.
 

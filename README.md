@@ -1,3 +1,8 @@
+### Overview
+
+This project aims to compare the costs of running a query in PostgreSQL when using different types of join algorithms in joining tables or when using a different scanning technique when scanning through a table. 
+
+
 ### Setting up the database:
 
 This process can be skipped if you already have the PostgreSQL server running with the relevant data loaded.
